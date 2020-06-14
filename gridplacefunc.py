@@ -339,6 +339,15 @@ def detect_field(a,nth,fmerge=10,fwidthmin=0):
             af[j,fc] = 1
     return af,tharr
 
+def fieldloc(trace):
+    x = np.diff(trace)
+    y = pylab.find(x<0)
+    z = np.diff(y)
+    z = np.append([10],z)
+    z = (z > 1)
+    peakloc = y*z
+    return peakloc[peakloc>0]
+
 def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X without replacement
     #if 1:
     l = [31,43] #[35,51] #[2,3]
@@ -477,6 +486,6 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
         pylab.title('$\lambda$='+str(l)+'; grid std={:.2f}; rand std={:.2f}'.format(np.std(u),np.std(v)))
         pylab.xlabel('number of fields $K$')
         pylab.ylabel('margin $\kappa$')
-    with open('fig4A'+mode+'.txt','wb') as f:
+    with open(datapath+'fig4A'+mode+'.txt','wb') as f:
         pickle.dump((margin,rmargin,smargin,numKarr,rnumKarr,snumKarr),f)
     return margin,rmargin,smargin,numKarr,rnumKarr,snumKarr

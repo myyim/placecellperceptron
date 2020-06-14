@@ -6,6 +6,13 @@ import pylab
 import matplotlib as mpl
 import pickle
 import itertools
+import os
+figpath = './figure/'
+if not os.path.exists(figpath):
+    os.makedirs(figpath)
+datapath = './data/'
+if not os.path.exists(datapath):
+    os.makedirs(datapath)
 exec(open('gridplacefunc.py').read())
 exec(open('mlfunc.py').read())
 exec(open('mathfunc.py').read())
@@ -154,7 +161,7 @@ def fig1_2():
     pylab.xlim(-0.1,R+2)
     ax.axis('off')
     pylab.subplots_adjust(left=0.05,top=0.95,right=0.95,bottom=0.1,hspace=0.5,wspace=0.3)
-    pylab.savefig('f12.svg')
+    pylab.savefig(figpath+'f12.svg')
 
 def fig6():
     pylab.figure(figsize=[7,7])
@@ -297,7 +304,7 @@ def fig6():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(top=0.9,wspace=0.3,hspace=0.4)
-    pylab.savefig('f6_Ng_'+str(Ng/2)+'_seed'+str(seed)+'.svg')
+    pylab.savefig(figpath+'f6_Ng_'+str(Ng/2)+'_seed'+str(seed)+'.svg')
 
 def fig6b():
     Ng = 10  # dinstinct for each neuron
@@ -338,7 +345,7 @@ def fig6b():
             pylab.xticks([])
         if iN == 0:
             pylab.title('Activity on track: $\lambda$='+str(l)+';#grid='+str(Ng)+';R='+str(R)+';#STD='+str(nth))
-    pylab.savefig('slices_act_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'nstd'+str(nth)+'.png')
+    pylab.savefig(figpath+'slices_act_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'nstd'+str(nth)+'.png')
     # IFI
     fig = pylab.figure(figsize=[12,7])
     ifiall = []
@@ -365,7 +372,7 @@ def fig6b():
     pylab.plot([2*l[j]*np.sqrt(3)+l[j]*np.sqrt(7)]*2,[0,max(y[0])+1],'--',c=color[j],lw=0.5)
     pylab.hist(ifiall,np.arange(0.5,np.max(ifiall)+1,bin))
     pylab.xlim(0,200)
-    pylab.savefig('slices_ifi_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'b'+str(bin)+'nstd'+str(nth)+'.png')
+    pylab.savefig(figpath+'slices_ifi_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'b'+str(bin)+'nstd'+str(nth)+'.png')
     # ACF
     x = np.arange(0,R,bin)
     fig = pylab.figure(figsize=[12,7])
@@ -414,7 +421,7 @@ def fig6b():
         pylab.plot([l[j]+l[j]*np.sqrt(3)+2*l[j]*np.sqrt(7)]*2,[0,acfmax+1],'--',c=color[j],lw=0.5)
     pylab.plot(x[1:],np.sum(acf[:,R/bin:],0))
     pylab.xlim(0,200)
-    pylab.savefig('slices_acf_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'b'+str(bin)+'nstd'+str(nth)+'.png')
+    pylab.savefig(figpath+'slices_acf_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'b'+str(bin)+'nstd'+str(nth)+'.png')
     # PSD
     bin = 1
     acf = np.zeros((Np,2*R/bin-1))
@@ -450,7 +457,7 @@ def fig6b():
             pylab.plot([k*1./l[j]*(np.cos(ori[j])+np.sin(ori[j])/np.sqrt(3))]*2,[0,psdmax+10],'--',c=color[j],lw=1)
     pylab.plot(x[1:],psd[1:])
     pylab.xlim(0,0.05)
-    pylab.savefig('slices_psd_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'nstd'+str(nth)+'.png')
+    pylab.savefig(figpath+'slices_psd_l'+str(l)+'g'+str(Ng)+'R'+str(R)+'nstd'+str(nth)+'.png')
 
 def fig3():
     fig = pylab.figure(figsize=[7,7])
@@ -536,7 +543,7 @@ def fig3():
     pylab.yticks([])
     ax.axis('off')
     pylab.subplots_adjust(left=0.1,top=0.97,right=0.95,bottom=0.1,wspace=0.2)
-    pylab.savefig('f3.svg')
+    pylab.savefig(figpath+'f3.svg')
 
 def fig5():
     import os.path
@@ -563,7 +570,7 @@ def fig5():
             pall,p2,p3,p4,p5,p6 = pickle.load(f)
     else:
         pall,p2,p3,p4,p5,p6 = frac_vs_S(l,R,return6=1)
-        with open(fname+'.txt','wb') as f:
+        with open(datapath+fname+'.txt','wb') as f:
             pickle.dump((pall,p2,p3,p4,p5,p6),f)
     ax = pylab.subplot(321)
     pylab.plot(range(1,R+1),np.ones(R),'o-',ms=5,label='1')
@@ -657,74 +664,7 @@ def fig5():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(left=0.15,top=0.95,right=0.95,bottom=0.1,wspace=0.3,hspace=0.4)
-    pylab.savefig('f5.svg')
-
-def morefig5():
-    rng = np.random.RandomState(30)
-    pylab.figure(figsize=[8,4])
-    ax = pylab.subplot(121)
-    M = 2
-    lsum = []
-    lsum_int = []
-    ctrackq0 = []
-    ctrackq2 = []
-    ctrackq4 = []
-    # [lmin,lmax)
-    lmin = 3
-    lmax = 100
-    for j in range(100):
-        l = lmin + rng.rand(M)*(lmax-lmin)
-        temp = testrange(l)
-        lsum.append(np.sum(l))
-        lsum_int.append(np.sum(np.floor(l)))
-        ctrackq0.append(temp[0])
-        ctrackq2.append(temp[2])
-        ctrackq4.append(temp[4])
-    pylab.plot(lsum_int,ctrackq0,'.',lw=0,ms=5,label='$R_{int}$')
-    pylab.plot(lsum,ctrackq2,'.',lw=0,ms=5,label='$R_{re}^{q=2}$')
-    pylab.plot(lsum,ctrackq4,'.',lw=0,ms=5,label='$R_{re}^{q=4}$')
-    #pylab.plot(lsum,ctrackq8,'.',lw=0,ms=5,label='$S_{real}^{q=8}$')
-    pylab.legend(loc=2,frameon=False)
-    pylab.plot([1,200],[1,200],'k--',lw=1)
-    pylab.xlim(0,200.5)
-    pylab.ylim(0,200.5)
-    pylab.xticks(range(0,201,50))
-    pylab.yticks(range(0,201,50))
-    pylab.xlabel('$\Sigma$')
-    pylab.ylabel('$R^q_{re}$')
-    pylab.title('2 modules: 3-100')
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax = pylab.subplot(122)
-    lsum = []
-    lsum_int = []
-    ctrackq0 = []
-    ctrackq2 = []
-    ctrackq4 = []
-    # [lmin,lmax)
-    lmin = 30
-    lmax = 1000
-    for j in range(100):
-        l = lmin + rng.rand(M)*(lmax-lmin)
-        temp = testrange(l)
-        lsum.append(np.sum(l))
-        lsum_int.append(np.sum(np.floor(l)))
-        ctrackq0.append(temp[0])
-        ctrackq2.append(temp[2])
-        ctrackq4.append(temp[4])
-    pylab.plot(lsum_int,ctrackq0,'.',lw=0,ms=5,label='$R_{int}$')
-    #pylab.plot(lsum,ctrackq2,'.',lw=0,ms=5,label='$R_{re}^{q=2}$')
-    #pylab.plot(lsum,ctrackq4,'.',lw=0,ms=5,label='$R_{re}^{q=4}$')
-    pylab.plot([1,2000],[1,2000],'k--',lw=1)
-    pylab.xlim(0,2000.5)
-    pylab.ylim(0,2000.5)
-    pylab.xticks(range(0,2001,1000))
-    pylab.yticks(range(0,2001,1000))
-    pylab.xlabel('$\Sigma$')
-    pylab.title('2 modules: 30-1000')
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    pylab.savefig('morefig5.svg')
+    pylab.savefig(figpath+'f5.svg')
 
 def fig8():
     is_qp = 0   # use quadratic programming with the options of constrained weights
@@ -753,6 +693,7 @@ def fig8():
     fig.text(0.48,0.3,'D',fontsize=fs)
     ax = fig.add_subplot(323)
     l = [31,43]
+    N = len(l)
     R = l[0]
     for j in range(N-1):
         R = lcm(R,l[j+1])
@@ -760,15 +701,17 @@ def fig8():
     u = act_mat_grid_binary(l)
     u /= 2
     mode = 's1000'
-    with open('fig4As1000.txt','rb') as f:
-        margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = pickle.load(f)
+    if os.path.exists(datapath+'fig4As1000.txt'):
+        with open(datapath+'fig4As1000.txt','rb') as f:
+            margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = pickle.load(f)
+    else:
+        margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = margin_gridvsrandom(l,K=K,num=num,mode=mode)
     margin = margin[:K]
     rmargin = rmargin[:K]
     smargin = smargin[:K]
     numKarr = numKarr[:K]
     rnumKarr = rnumKarr[:K]
     snumKarr = snumKarr[:K]
-    #margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = margin_gridvsrandom(l=l,K=K,num=num,mode=mode)
     print margin[0]
     temp = []
     for j in range(K):
@@ -940,7 +883,7 @@ def fig8():
                                     print 'found realizable with v'
                                     margin_new[r-1][k-1].append(m)
                                     is_fit = 1
-            with open('fig4CD_'+str(id)+'.txt','wb') as f:
+            with open(datapath+'fig4CD_'+str(id)+'.txt','wb') as f:
                 pickle.dump((margin_spatial,margin_new),f)
     color = ['b','#0f9b8e','#0cfc73']
     for id in range(2):
@@ -988,10 +931,9 @@ def fig8():
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
     fig.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.1,wspace=0.4,hspace=0.5)
-    fig.savefig('f8'+'qp'*is_qp+'.svg')
+    fig.savefig(figpath+'f8'+'qp'*is_qp+'.svg')
 
 def fig7(seed):
-    seed = 8
     rng = np.random.RandomState(seed)
     wp1 = 0
     wp2 = 1
@@ -1007,8 +949,8 @@ def fig7(seed):
         R *= l[j+1]
     R = 2000
     nK = 4
-    nadd = 1 #4
-    nex = 1#0
+    nadd = 4
+    nex = 10
     x = np.arange(R)
     w = rng.lognormal(wp1,wp2,size=[Np,Ng])
     for iN in range(Np):
@@ -1093,7 +1035,6 @@ def fig7(seed):
                     pylab.plot(ath)
                     for id in idarr:
                         pylab.plot([id]*2,[np.min(ath),np.max(ath)],'r--',lw=1)
-                    """
                     ax = pylab.subplot(513) # added activity
                     loc = rng.choice(pool,k,replace=False)
                     dw = np.sum(v[iN,:,loc],0) #np.sum(v[iN,:,loc-25:loc+26],1)  # size of the induced plateau
@@ -1115,17 +1056,17 @@ def fig7(seed):
                         pylab.plot([id]*2,[np.min(a_dw),np.max(a_dw)],'r--',lw=1)
                     for id in loc:
                         pylab.plot([id]*2,[np.min(a_dw),np.max(a_dw)],'g--',lw=1)
-                    print alpha,np.dot(v[iN,:,loc],w1),th
+                    #print alpha,np.dot(v[iN,:,loc],w1),th
                     ax = pylab.subplot(514) # after learning
-                    a1[iN,:] = np.dot(w1,v[iN,:,:])   # a1 is activity after learning
-                    pylab.plot(a1[iN,:])
+                    a1 = np.dot(w1,v[iN,:,:])   # a1 is activity after learning
+                    pylab.plot(a1)
                     pylab.plot([0,R],[th]*2,'k',lw=1)
                     for id in idarr:
                         pylab.plot([id]*2,[np.min(a[iN,:]),np.max(a[iN,:])],'r--',lw=1)
                     for id in loc:
-                        pylab.plot([id]*2,[np.min(a1[iN,:]),np.max(a1[iN,:])],'g--',lw=1)
+                        pylab.plot([id]*2,[np.min(a1),np.max(a1)],'g--',lw=1)
                     ax = pylab.subplot(515) # after learning thresholded
-                    ath1 = a1[iN,:]-th
+                    ath1 = a1-th
                     ath1[ath1<0] = 0
                     pylab.plot(ath1)
                     for id in idarr:
@@ -1140,14 +1081,11 @@ def fig7(seed):
                     for id in idarr:
                         if np.any(id==loc1):
                             temp += 1
-                    nfieldstay[K-1][k-1].append(temp)"""
-                #pylab.savefig('./fig6/seed{}pc{}K{}A{}eg{}.svg'.format(seed,iN,K,k,j))
-                #pylab.close('all')
-                """
-                    nK = 4
-                    nadd = 4
-                    #with open('./fig6/zfieldchange_seed'+str(seed)+'.txt','wb') as f:
-                    #    pickle.dump((fieldshift,nfieldchange,nfieldstay),f)"""
+                    nfieldstay[K-1][k-1].append(temp)
+                pylab.savefig(figpath+'seed{}pc{}K{}A{}eg{}.svg'.format(seed,iN,K,k,j))
+                pylab.close('all')
+                with open(datapath+'fieldchange_seed'+str(seed)+'.txt','wb') as f:
+                    pickle.dump((fieldshift,nfieldchange,nfieldstay),f)
 
 def readfig7():
     nK = 4
@@ -1168,7 +1106,7 @@ def readfig7():
             nfieldchange[j].append([])
             nfieldstay[j].append([])
     for seed in range(1,11):
-        with open('./fig6/fieldchange_seed'+str(seed)+'.txt','rb') as f:
+        with open(datapath+'fieldchange_seed'+str(seed)+'.txt','rb') as f:
             a,b,c = pickle.load(f)
         fieldshift.extend(a)
         for j in range(nK):
@@ -1221,3 +1159,14 @@ def readfig7():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(left=0.1,right=0.9,wspace=0.4,hspace=0.4,bottom=0.2)
+
+fig1_2()
+fig3()
+fig5()
+fig5()
+fig6()
+fig6b()
+fig8()
+for j in range(1,11):
+    fig7(j)
+readfig7()
