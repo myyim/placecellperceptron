@@ -202,7 +202,7 @@ def fig6():
     for iN in range(Np):   # choose one neuron for the IFI histogram
         ifiall.extend(np.diff(fid1d[iN]))
     y = np.histogram(ifiall,np.arange(0.5,np.max(ifiall)+1,bin))
-    if 0:
+    if 1:
         pylab.figure()
         for iNg in range(Ng):
             pylab.plot(v[0,iNg,:]+iNg+1,'k')
@@ -215,6 +215,7 @@ def fig6():
         pylab.ylabel('15 GCs in black; sum in red, rescaled')
         pylab.title('blue lines denote place fields')
         pylab.subplots_adjust(left=0.05,right=0.95,bottom=0.15)
+        pylab.savefig(figpath+'fig6A.svg')
     count = np.zeros(Ng+1)
     for iNp in range(Np):
         for k in np.where(af[iNp]==1)[0]:
@@ -242,7 +243,7 @@ def fig6():
     acf1 /= np.max(acf1)
     acf2 /= np.max(acf2)
     acf3 /= np.max(acf3)
-    pylab.plot(range(-R/2,R/2),(acf1+acf2+acf3)/3.,'k',label='ACF')
+    pylab.plot(range(-R/2,R/2),np.max(ifiall)*(acf1+acf2+acf3)/3.,'k',label='ACF')
     pylab.xlim(0,300)
     pylab.xlabel('IFI')
     pylab.title('1D periodic')
@@ -296,7 +297,7 @@ def fig6():
     acf2 = np.correlate(v[pid,Ng/2,:],v[pid,Ng/2,:],'same')
     acf1 /= np.max(acf1)
     acf2 /= np.max(acf2)
-    pylab.plot(range(-R/2,R/2),(acf1+acf2)/2.,'k',label='ACF')
+    pylab.plot(range(-R/2,R/2),np.max(ifiall)*(acf1+acf2)/2.,'k',label='ACF')
     pylab.xlim(0,300)
     #pylab.yticks([0,5,10])
     pylab.xlabel('IFI')
@@ -546,7 +547,6 @@ def fig3():
     pylab.savefig(figpath+'f3.svg')
 
 def fig5():
-    import os.path
     mpl.rcParams['legend.fontsize'] = font_size-5
     mpl.rcParams['axes.titlesize'] = font_size-3
     rng = np.random.RandomState(3)
@@ -565,8 +565,8 @@ def fig5():
     for j in range(N-1):
         R = lcm(R,l[j+1])
     fname = 'pcorr'+str(l[0])+str(l[1])
-    if os.path.isfile(fname+'.txt'):
-        with open(fname+'.txt','rb') as f:
+    if os.path.isfile(datapath+fname+'.txt'):
+        with open(datapath+fname+'.txt','rb') as f:
             pall,p2,p3,p4,p5,p6 = pickle.load(f)
     else:
         pall,p2,p3,p4,p5,p6 = frac_vs_S(l,R,return6=1)
@@ -789,9 +789,6 @@ def fig8():
     ax.plot(mth,np.array(count0L)/temp,'k')
     ax.plot(mth,np.array(countr1L)/temp,color='m',lw=1.5) #1f77b4
     ax.plot(mth,np.array(counts1L)/temp,color='b',lw=1.5)    #ff7f0e
-    if 0 and num > 1: # remove
-        ax.plot(mth,np.array(countr2L)/temp,'--',color='#1f77b4')
-        ax.plot(mth,np.array(counts2L)/temp,'--',color='#ff7f0e')
     ax.plot([0,1],2*[1],'k--',lw=1)
     ax.set_ylim(0,1)
     ax.set_xlim(0,0.4)
@@ -1159,6 +1156,7 @@ def readfig7():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(left=0.1,right=0.9,wspace=0.4,hspace=0.4,bottom=0.2)
+    pylab.savefig(figpath+'fig7.svg')
 
 fig1_2()
 fig3()
