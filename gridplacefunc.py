@@ -59,9 +59,9 @@ def grid1d_orient(x,period,ori,xph=0.,yph=0.,sig=0.106,full=0,mode='exp'):
 def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
     is_svm = 0
     if is_svm:
-        print 'Using SVM'
+        print('Using SVM')
     else:
-        print 'Using perceptron'
+        print('Using perceptron')
     rng = np.random.RandomState(33) # used for smapling only
     N = len(l)
     Ng = np.sum(l)
@@ -72,7 +72,7 @@ def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
             u.append(grid(np.arange(R),l[iN],float(iM)/l[iN],0,'del'))
     u = np.array(u)
     Sc = np.linalg.matrix_rank(u)
-    print 'rank = ',Sc
+    print('rank = ',Sc)
     if np.all(Xarr == None):
         Xarray = range(Sc+1,R+1)
     else:
@@ -80,8 +80,8 @@ def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
     for X in Xarray:
         pc = [1]
         for K in range(2,X/2+1):
-            print '----'
-            print 'X = '+str(X)+'; K = '+str(K)
+            print('----')
+            print('X = '+str(X)+'; K = '+str(K))
             if np.all(Xarr == None):
                 com = [list(temp) for temp in itertools.combinations(range(X),K)]
             else:
@@ -94,7 +94,6 @@ def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
                     com.append(fds)
             count = 0
             for ic in range(len(com)):
-                #print X,K,com[ic],nCr(X,K)
                 if is_svm:
                     Y = -np.ones(X)
                     Y[com[ic]] = 1
@@ -105,9 +104,9 @@ def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
                 else:
                     count += perceptron(u[:,:X],com[ic])
             pc.append(float(count)/len(com))
-            print count
+            print(count)
         pcorr.append(pc)
-    print pcorr
+    print(pcorr)
     p = []
     if np.all(Xarr == None):
         for j in range(Sc):
@@ -121,7 +120,7 @@ def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
         p0.extend(pcorr0[np.mod(Xarray[j]+1,2):])
         p0.append(1)
         p.append(p0)
-    print p
+    print(p)
     psum = []
     pall = []
     if np.all(Xarr == None):
@@ -136,12 +135,11 @@ def frac_vs_S(l,R,Xarr=None,samples=1000,return6=0):
                 lspK.append(int(np.round(nlsp)))
                 nCrsum += nCr(Xarray[j],K)
             else:
-                print 'Please check',Xarray[j],K,nlsp,np.abs(nlsp-np.round(nlsp))
+                print('Please check',Xarray[j],K,nlsp,np.abs(nlsp-np.round(nlsp)))
         lsp.append(lspK)
         psum.append(np.sum(lspK)+1)
         pall.append(psum[-1]/float(nCrsum))
-        #print psum[-1],nCrsum
-    print psum
+    print(psum)
     if not return6:
         return pall,p
     else:
@@ -176,7 +174,7 @@ def testrange(l,itermax=8):
     m = 0
     l = np.array(l)
     N = len(l)
-    print 'Sum = '+str(np.sum(l))
+    print('Sum = '+str(np.sum(l)))
     is_int = 0
     critical = []
     while m < itermax+1 and is_int == 0:
@@ -190,7 +188,7 @@ def testrange(l,itermax=8):
                 com = [list(temp) for temp in itertools.combinations(l*10**m,j)]
                 for k in range(len(com)):
                     rk += GCD(com[k])*(-1)**(j-1)
-            print 'Range = '+str(rk/float(10**m))
+            print('Range = '+str(rk/float(10**m)))
         else:
             l0 = []
             for k in l:
@@ -200,7 +198,7 @@ def testrange(l,itermax=8):
                 com = [list(temp) for temp in itertools.combinations(l0,j)]
                 for k in range(len(com)):
                     rk += GCD(com[k])*(-1)**(j-1)
-            print 'Range = '+str(rk/float(10**m))+' ; correct to '+str(m)+' decimal places'
+            print('Range = '+str(rk/float(10**m))+' ; correct to '+str(m)+' decimal places')
         critical.append(rk/float(10**m))
         m += 1
     return critical
@@ -211,7 +209,7 @@ def input_margin(X,K=None):
     darr = []
     karr = []
     if K == None:
-        K = R/2
+        K = R//2
     for k in range(1,K+1):
         com = [list(temp) for temp in itertools.combinations(range(R),k)]
         for j in range(len(com)):
@@ -221,7 +219,7 @@ def input_margin(X,K=None):
             dec = np.sign(np.dot(w.T,X)+b)
             dec[dec<0] = 0
             if abs(np.sum(np.abs(Y-dec)))<1e-10:
-                print list(np.array(com[j])+1),dec,m
+                print(list(np.array(com[j])+1),dec,m)
             else:
                 m = np.inf
             marr.append(m)
@@ -246,7 +244,7 @@ def input_margin_qp(X,K=None,is_thre=1,is_wconstrained=1):
     darr = []
     karr = []
     if K == None:
-        K = R/2
+        K = R//2
     for k in range(1,K+1):
         com = [list(temp) for temp in itertools.combinations(range(R),k)]
         for j in range(len(com)):
@@ -260,7 +258,7 @@ def input_margin_qp(X,K=None,is_thre=1,is_wconstrained=1):
                     m,w = svm_qp(X,Y,is_thre,is_wconstrained)
                     dec = np.sign(np.dot(w.T,X))  # minus here
                 dec[dec<0] = -1
-                print list(np.array(com[j])+1),dec,m
+                print(list(np.array(com[j])+1),dec,m)
             except:
                 m = np.inf
                 dec = np.zeros(Y.size)
@@ -272,11 +270,11 @@ def input_margin_qp(X,K=None,is_thre=1,is_wconstrained=1):
 def random_weightcon(N,X,is_wconstrained=1,seed=99):
     rng = np.random.RandomState(seed)
     xall = rng.rand(N,X)
-    print xall
+    print(xall)
     p = [] # X=1,...,R
     for R in range(1,X+1):
         x = xall[:,:R]
-        print '%%%% track = ',R
+        print('%%%% track = ',R)
         count = 0
         for k in range(R/2+1):
             com = [list(temp) for temp in itertools.combinations(range(R),k)]
@@ -291,7 +289,7 @@ def random_weightcon(N,X,is_wconstrained=1,seed=99):
                         m,w = svm_qp(x,Y,0,0)
                         dec = np.sign(np.dot(w.T,x))  # minus here
                     dec[dec<0] = -1
-                    print list(np.array(com[j])+1),dec,m
+                    print(list(np.array(com[j])+1),dec,m)
                     if np.abs(np.sum(Y-dec)) == 0:
                         if k == R/2.:
                             count += 1
@@ -348,12 +346,7 @@ def fieldloc(trace):
     peakloc = y*z
     return peakloc[peakloc>0]
 
-def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X without replacement
-    #if 1:
-    l = [31,43] #[35,51] #[2,3]
-    K = 6
-    num = 10
-    mode = 's1000'
+def margin_gridvsrandom(l,K=6,num=10,mode='ext',is_qp=0): # ext=exact, sX=sample X without replacement
     u = act_mat_grid_binary(l)
     u /= len(l)
     rng = np.random.RandomState(1)
@@ -387,10 +380,20 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
                 i1 = np.tile(range(l[0]),l[1])
                 i2 = np.tile(range(l[1]),l[0])
                 Y = mat[i1,i2]
-                m,w,b = svm_margin(u.T,Y)
+                if is_qp == 0:
+                    m,w,b = svm_margin(u.T,Y)
+                    dec = np.sign(np.dot(w.T,u)+b)
+                    dec[dec<0] = 0
+                else:
+                    try:
+                        Y[Y==0] = -1
+                        m,w,b = svm_qp(u,Y,1,1)
+                    except:
+                        m = np.inf
+                        w = np.inf*np.ones(u.shape[0])
+                        b = np.inf
+                    dec = np.sign(np.dot(w.T,u)+b)
                 margin[k-1].append(m)
-                dec = np.sign(np.dot(w.T,u)+b)
-                dec[dec<0] = 0
                 denominator = math.factorial(l[0]-p[0])*math.factorial(p[-1])*math.factorial(l[1]-len(p))
                 for j in np.diff(p):
                     denominator *= math.factorial(abs(j))
@@ -398,19 +401,18 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
                 chist = chist[chist>0]
                 for j in chist:
                     denominator *= math.factorial(j)
-                #print k,p,abs(np.sum(np.abs(Y-dec))),m
-                #print p,math.factorial(l[0])*math.factorial(l[1])/denominator,m
                 numK = math.factorial(l[0])*math.factorial(l[1])/denominator
                 numKarr[k-1].append(numK)
         partfunc.append(len(part))
+    print(margin)
     # random
     for j in range(num):
-        print 'Random '+str(j)
+        print('Random '+str(j))
         v = rng.rand(u.shape[0],u.shape[1])
         for jj in range(u.shape[1]):
             v[:,jj] = v[:,jj]/np.sum(v[:,jj])
         for k in range(1,K+1):
-            print 'Number of fields: '+str(k)
+            print('Number of fields: '+str(k))
             rmargin[k-1].append([])
             if mode == 'ext':
                 com = [list(temp) for temp in itertools.combinations(range(u.shape[1]),k)]
@@ -424,18 +426,28 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
             for icom in com: # len(com) or partfunc[k-1] or 1
                 Y = np.zeros(u.shape[1])
                 Y[icom] = 1
-                m,w,b = svm_margin(v.T,Y)
-                dec = np.sign(np.dot(w.T,v)+b)
-                dec[dec<0] = 0
+                if is_qp == 0:
+                    m,w,b = svm_margin(v.T,Y)
+                    dec = np.sign(np.dot(w.T,v)+b)
+                    dec[dec<0] = 0
+                else:
+                    try:
+                        Y[Y==0] = -1
+                        m,w,b = svm_qp(v,Y,1,1)
+                    except:
+                        m = np.inf
+                        w = np.inf*np.ones(v.shape[0])
+                        b = np.inf
+                    dec = np.sign(np.dot(w.T,v)+b)
                 if abs(np.sum(np.abs(Y-dec))) < 1e-6:
                     numK += 1
                     rmargin[k-1][j].append(m)
-            #print Y,abs(np.sum(np.abs(Y-dec)))
-            #print k,j,abs(np.sum(np.abs(Y-dec)))
             rnumKarr[k-1].append(numK)
+            if j == num-1:
+                print(m)
     # shuffled
     for j in range(num):
-        print 'Shuffled '+str(j)
+        print('Shuffled '+str(j))
         v = np.copy(u)
         if 1:
             # shuffle column only
@@ -449,7 +461,7 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
             rng.shuffle(v)
             v = v.reshape(u.shape)
         for k in range(1,K+1):
-            print 'Number of fields: '+str(k)
+            print('Number of fields: '+str(k))
             smargin[k-1].append([])
             if mode == 'ext':
                 com = [list(temp) for temp in itertools.combinations(range(u.shape[1]),k)]
@@ -463,13 +475,25 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
             for icom in com: # len(com) or partfunc[k-1] or 1
                 Y = np.zeros(u.shape[1])
                 Y[icom] = 1
-                m,w,b = svm_margin(v.T,Y)
-                dec = np.sign(np.dot(w.T,v)+b)
-                dec[dec<0] = 0
+                if is_qp == 0:
+                    m,w,b = svm_margin(v.T,Y)
+                    dec = np.sign(np.dot(w.T,v)+b)
+                    dec[dec<0] = 0
+                else:
+                    try:
+                        Y[Y==0] = -1
+                        m,w,b = svm_qp(v,Y,1,1)
+                    except:
+                        m = np.inf
+                        w = np.inf*np.ones(v.shape[0])
+                        b = np.inf
+                    dec = np.sign(np.dot(w.T,v)+b)
                 if abs(np.sum(np.abs(Y-dec))) < 1e-6:
                     numK += 1
                     smargin[k-1][j].append(m)
             snumKarr[k-1].append(numK)
+            if j == num-1:
+                print(m)
     if 0:
         pylab.figure()
         pylab.plot([-1,-1],[0,0],'k',label='grid')
@@ -486,6 +510,6 @@ def margin_gridvsrandom(l,K=6,num=10,mode='ext'): # ext=exact, sX=sample X witho
         pylab.title('$\lambda$='+str(l)+'; grid std={:.2f}; rand std={:.2f}'.format(np.std(u),np.std(v)))
         pylab.xlabel('number of fields $K$')
         pylab.ylabel('margin $\kappa$')
-    with open(datapath+'fig4A'+mode+'.txt','wb') as f:
+    with open(datapath+'f8_'+mode+'_qp'*is_qp+'.txt','wb') as f:
         pickle.dump((margin,rmargin,smargin,numKarr,rnumKarr,snumKarr),f)
     return margin,rmargin,smargin,numKarr,rnumKarr,snumKarr

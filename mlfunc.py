@@ -43,7 +43,7 @@ def svm_margin(X,Y):
     """svm_margin(X,Y) return the SVM maximum margin, the corresponding weights and threshold using sklearn function SVC."""
     num = X.shape[0]
     if Y.shape[0] != num:
-        print 'Dimensions mismatched!'
+        print('Dimensions mismatched!')
         return
     dim = X.shape[1]
     w = np.zeros(dim)
@@ -55,7 +55,7 @@ def svm_margin(X,Y):
     return 2./pylab.norm(w),w,hyp.intercept_[0]
 
 def svm_qp(x,y,is_thre=1,is_wconstrained=1):
-    """svm_qp(x,y,is_thre=1,is_wconstrained=1) returns the SVM maximum margin and the corresponding weights (and threshold if any). x is the input matrix with dimension N (number of neurons+threshold if any) by P (number of patterns). y is the desired output vector of dimension P."""
+    """svm_qp(x,y,is_thre=1,is_wconstrained=1) returns the SVM maximum margin and the corresponding weights (and threshold if any). x is the input matrix with dimension N (number of neurons) by P (number of patterns). y is the desired output vector of dimension P. y is either -1 or 1. """
     import qpsolvers
     R = x.shape[1]
     G = -(x*y).T
@@ -65,9 +65,9 @@ def svm_qp(x,y,is_thre=1,is_wconstrained=1):
         G = G.reshape(N,R)
         G = G.T
         P = np.identity(N)
-        P[-1,-1] = 1e-12    # regularization; may have to play around
+        P[-1,-1] = 1e-14    # regularization; may have to play around
         #for j in range(N):
-        #P[j,j] += 1e-16
+        #    P[j,j] += 1e-16
         #P += 1e-10
     else:
         N = x.shape[0]
@@ -83,9 +83,10 @@ def svm_qp(x,y,is_thre=1,is_wconstrained=1):
             h = np.array([-1.]*R+[0]*N)
     else:
         h = np.array([-1.]*R)
+    #print(G)
     w = qpsolvers.solve_qp(P,np.zeros(N),G,h)
     #w = qpsolvers.solve_qp(np.identity(N),np.zeros(N),G,h,np.zeros(N),0) #CVXOPT,qpOASES,quadprog
     if is_thre:
-        return 2/pylab.norm(w[:-1]),w[:-1],w[-1]
+        return 2/pylab.norm(w[:-1]),w[:-1],-w[-1]
     else:
         return 2/pylab.norm(w),w

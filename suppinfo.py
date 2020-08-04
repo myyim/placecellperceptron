@@ -5,6 +5,13 @@ import pylab
 import matplotlib as mpl
 import pickle
 import itertools
+import os
+figpath = './figure/'
+if not os.path.exists(figpath):
+    os.makedirs(figpath)
+datapath = './data/'
+if not os.path.exists(datapath):
+    os.makedirs(datapath)
 exec(open('gridplacefunc.py').read())
 exec(open('mlfunc.py').read())
 exec(open('mathfunc.py').read())
@@ -93,19 +100,20 @@ def fig5_noncoprime():
     pylab.xlabel('$l$')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+    pylab.savefig(figpath+'s5.svg')
 
 def fig8_l23():
     is_qp = 0   # use quadratic programming with the options of constrained weights
-    #is_randphase = 1
-    #rate_rescaled = 1
+    is_randphase = 1
+    rate_rescaled = 1
     if is_qp:
-        print 'Using quadratic programming'
+        print('Using quadratic programming')
     else:
-        print 'Using sklearn SVM'
+        print('Using sklearn SVM')
     #if is_randphase:
-    #    print 'Phases in panel D are random'
+    #    print('Phases in panel D are random')
     #else:
-    #   print 'Phases in panel D are equally spaced'
+    #   print('Phases in panel D are equally spaced')
     mpl.rcParams['legend.fontsize'] = font_size-6
     rng = np.random.RandomState(4)
     import seaborn as sns
@@ -116,12 +124,14 @@ def fig8_l23():
     N = len(l)
     Ng = np.sum(l)
     num = 10
+    s = [0.1,0.2]
     R = l[0]
     for j in range(N-1):
         R = lcm(R,l[j+1])
     K = int(np.ceil(R/2.))
     u = act_mat_grid_binary(l)
     u /= 2
+    fig = pylab.figure(figsize=[7,8.5])
     # A
     ax = fig.add_subplot(433)
     if is_qp:
@@ -142,7 +152,7 @@ def fig8_l23():
     for k in range(1,K+1):
         munique.append(list(np.unique(mtemp[karr0==k])))
         for m in mtemp[karr0==k]:
-            mlabel.append(int(str(k)+str(int(m))))
+            mlabel.append(int(str(k)+str(pylab.find(m==munique[k-1])[0])))
     mlabel = np.array(mlabel)
     for k in range(1,K+1):
         for mu in munique[k-1]:
@@ -198,8 +208,6 @@ def fig8_l23():
         kmat.extend([k+1]*np.sum(snumKarr[k]))
     mmat.extend(np.sum(smargin))
     nmat.extend(['shuffled']*np.sum(np.sum(snumKarr)))
-    """
-    """
     kmat = []
     mmat = []
     nmat = []
@@ -258,16 +266,6 @@ def fig8_l23():
     ax.set_ylabel('margin $\kappa$')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-
-def fig8_l23_addnoise():
-    l = [2,3]
-    R = l[0]
-    for j in range(N-1):
-        R = lcm(R,l[j+1])
-    K = 3
-    u = act_mat_grid_binary(l)
-    u /= 2
-    s = [0.1,0.2]
     kmat1 = []  # realizable in binary grid
     mmat1 = []
     nmat1 = []
@@ -288,7 +286,7 @@ def fig8_l23_addnoise():
             marr2,darr2,karr2 = input_margin(u+s[1]*randinp)
         realizable1 = (np.abs(darr1)<1e-10)
         realizable2 = (np.abs(darr2)<1e-10)
-        print sum(realizable1*realizable0),sum(realizable2*realizable0)
+        print(sum(realizable1*realizable0),sum(realizable2*realizable0))
         act = pylab.vstack([marr0,marr1[realizable0],marr2[realizable0]])
         kmat1.extend(karr1[realizable0])
         mmat1.extend(marr1[realizable0])
@@ -309,7 +307,7 @@ def fig8_l23_addnoise():
         #kmat3.extend(karr2[~realizable2*realizable0])
         #mmat3.extend(marr2[~realizable2*realizable0])
         #nmat3.extend(np.sum([~realizable2*realizable0])*[0.2])
-        print '%%%%%',np.sum(realizable0),np.sum(realizable1*realizable0),np.sum(realizable2*realizable0)
+        print('%%%%%',np.sum(realizable0),np.sum(realizable1*realizable0),np.sum(realizable2*realizable0))
     kmat1 = np.array(kmat1)
     mmat1 = np.array(mmat1)
     nmat1 = np.array(nmat1)
@@ -357,17 +355,13 @@ def fig8_l23_addnoise():
     pylab.plot(np.array([-0.3,1.3]),2*[munique[2][0]],'k')
     pylab.plot(np.array([-0.3,1.3]),2*[munique[2][1]],'k')
     ax.set_yticks([])
-    #ax.set_xticks([0,1],('0.1','0.2'))
     ax.set_xlim(-0.5,1.5)
     ax.set_ylim(0,2.8)
     ax.set_title('$K$=3')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    # obsolete below
-    #ax = fig.add_subplot(326)
-    #ax = fig.add_axes([0.41, 0.1, 0.55, 0.23])
-    
-def fig8_l23_gaussprofile():
+    #pylab.savefig(figpath+'s8_l23_addnoise.svg')
+#def fig8_l23_gaussprofile():
     sig = 0.212
     gridmodel = 'gau'
     color = ['r']
@@ -403,7 +397,7 @@ def fig8_l23_gaussprofile():
             else:
                 marr,darr,karr = input_margin(v)
             realizable = (np.abs(darr)<1e-10)
-            print '@@@@@',k,j,np.sum(realizable)
+            print('@@@@@',k,j,np.sum(realizable))
             kmat.extend(karr[realizable0])
             mmat.extend(marr[realizable0])
             nmat.extend(np.sum([realizable0])*[narr[j]])
@@ -415,7 +409,7 @@ def fig8_l23_gaussprofile():
                 else:
                     v1[:narr[j]/2,2:] = 0
                     v1[narr[j]/2:,:2] = 0
-                print narr[j],v1
+                print(narr[j],v1)
                 actn = pylab.vstack([actn,marr])
                 if j == 0:
                     countn1 = []
@@ -466,16 +460,19 @@ def fig8_l23_gaussprofile():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     fig.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.1,wspace=0.4,hspace=0.5)
-    fig.savefig('f8'+'qp'*is_qp+'.svg')
+    #pylab.savefig(figpath+'s8_l23_gaussprofile.svg')
+    pylab.savefig(figpath+'s8_l23.svg')
+    pylab.close()
 
 def fig8_l23_inset():
     # Inset
-    print 'Inset'
+    print('Inset')
+    mth = np.arange(0,1.6,0.01)
     inset = pylab.figure(figsize=[7,5])
     ax = inset.add_subplot(221)
     kvsN = 0
     if kvsN:
-        print 'Please update or remove'
+        print('Please update or remove')
         ax.plot(count0,mth,'k')
         ax.plot(countr1,mth,color='#1f77b4')
         ax.plot(countr2,mth,'--',color='#1f77b4')
@@ -517,7 +514,7 @@ def fig8_l23_inset():
         count,temp = np.histogram(rng.rand(int(mode[1:])),np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)])/nCr(R,k))
         for j in range(len(count)-1):
             m_inset.extend([margin[k-1][j]]*count[j])
-        print np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)]),count,m_inset
+        print(np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)]),count,m_inset)
     count0L = []
     for m in mth:
         count0L.append(np.sum(np.array(m_inset)>=m))
@@ -613,10 +610,13 @@ def fig8_l23_inset():
     ax.set_ylabel('margin $\kappa$')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
-    #inset.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.1,wspace=0.3,hspace=0.3)
+        #inset.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.1,wspace=0.3,hspace=0.3)
     #inset.savefig('f4b'+'qp'*is_qp+'.svg')
+    pylab.savefig(figpath+'s8_l23_inset.svg')
 
 def extra_fig8():
+    is_randphase = 1
+    rate_rescaled = 1
     rng = np.random.RandomState(4)
     import seaborn as sns
     gridmodel = 'del'
@@ -728,12 +728,12 @@ def extra_fig8():
                     for s in range(sarr.size):
                         dec = np.sign(np.dot(w.T,u)+b+sarr[s]*randnoise[t])
                         dec[dec<0] = 0
-                        print t,com[j],abs(np.sum(np.abs(Y-dec))),m,ml[count],np.dot(w.T,u)+b,w,b
+                        print(t,com[j],abs(np.sum(np.abs(Y-dec))),m,ml[count],np.dot(w.T,u)+b,w,b)
                         temparr.extend(np.dot(w.T,u)+b)
                         if 0: #abs(np.sum(np.abs(Y-dec))) > 0:
-                            print t,com[j],abs(np.sum(np.abs(Y-dec))),m,ml[count]
-                            print np.dot(w.T,u)+b,np.sign(np.dot(w.T,u)+b)
-                            print np.dot(w.T,u)+b+sarr[s]*randnoise[t],np.sign(np.dot(w.T,u)+b+sarr[s]*randnoise[t])
+                            print(t,com[j],abs(np.sum(np.abs(Y-dec))),m,ml[count])
+                            print(np.dot(w.T,u)+b,np.sign(np.dot(w.T,u)+b))
+                            print(np.dot(w.T,u)+b+sarr[s]*randnoise[t],np.sign(np.dot(w.T,u)+b+sarr[s]*randnoise[t]))
                         if abs(np.sum(np.abs(Y-dec)))<1e-10:
                             count29[ml[count],s,t] += 1
                 count += 1
@@ -783,7 +783,7 @@ def extra_fig8():
             v = np.array(v)
             marr,darr,karr = input_margin(v)
             realizable = (np.abs(darr)<1e-10)
-            print '@@@@@',k,j,np.sum(realizable)
+            print('@@@@@',k,j,np.sum(realizable))
             kmat.extend(karr[realizable0])
             mmat.extend(marr[realizable0])
             nmat.extend(np.sum([realizable0])*[narr[j]])
@@ -795,7 +795,7 @@ def extra_fig8():
                 else:
                     v1[:narr[j]/2,2:] = 0
                     v1[narr[j]/2:,:2] = 0
-                print narr[j],v1
+                print(narr[j],v1)
                 actn = pylab.vstack([actn,marr])
                 if j == 0:
                     countn1 = []
@@ -820,6 +820,7 @@ def extra_fig8():
         ax.set_ylim(0,4)
         ax.set_ylabel('margin $\kappa$')
         ax.set_title('$K$=1')
+    pylab.savefig(figpath+'s8_extra.svg')
 
 def morefig8b():
     fig = pylab.figure(figsize=[7,5])
@@ -863,7 +864,7 @@ def morefig8b():
         v = rng.rand(Sc,R)
         marr,darr,karr = input_margin(v)
         realizable = (np.abs(darr)<1e-10)
-        print np.sum(realizable),np.linalg.matrix_rank(v)
+        print(np.sum(realizable),np.linalg.matrix_rank(v))
         karr = karr[realizable]
         marr = marr[realizable]
         kall.extend(karr)
@@ -876,7 +877,7 @@ def morefig8b():
         v = rng.rand(u.shape[0],R)
         marr,darr,karr = input_margin(v)
         realizable = (np.abs(darr)<1e-10)
-        print np.sum(realizable),np.linalg.matrix_rank(v)
+        print(np.sum(realizable),np.linalg.matrix_rank(v))
         karr = karr[realizable]
         marr = marr[realizable]
         kall.extend(karr)
@@ -893,7 +894,7 @@ def morefig8b():
         v = v.reshape(u.shape)
         marr2,darr2,karr2 = input_margin(v)
         realizable2 = (np.abs(darr2)<1e-10)
-        print np.sum(realizable2),np.linalg.matrix_rank(v)
+        print(np.sum(realizable2),np.linalg.matrix_rank(v))
         karr2 = karr2[realizable2]
         marr2 = marr2[realizable2]
         kall.extend(karr2)
@@ -928,7 +929,7 @@ def morefig8b():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.15,hspace=0.3,wspace=0.3)
-    pylab.savefig('morefig8b.svg')
+    pylab.savefig(figpath+'s8b.svg')
 
 def morefig8c():
     mpl.rcParams['xtick.labelsize'] = font_size-6
@@ -1071,7 +1072,7 @@ def morefig8c():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.15,hspace=0.3,wspace=0.3)
-    pylab.savefig('morefig8c.svg')
+    pylab.savefig(figpath+'s8c.svg')
 
 def morefig8d():
     mpl.rcParams['legend.fontsize'] = font_size-7
@@ -1218,4 +1219,245 @@ def morefig8d():
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     pylab.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.15,hspace=0.3,wspace=0.3)
-    pylab.savefig('morefig8d.svg')
+    pylab.savefig(figpath+'s8d.svg')
+
+def s8():
+    is_qp = 1   # use quadratic programming with the options of constrained weights
+    if is_qp:
+        print('Using quadratic programming')
+    else:
+        print('Using sklearn SVM')
+    mpl.rcParams['legend.fontsize'] = font_size-6
+    rng = np.random.RandomState(4)
+    import seaborn as sns
+    gridmodel = 'del'
+    mth = np.arange(0,1.0001,0.01)
+    sym = ['^','+','x']
+    num = 10
+    # A
+    fig = pylab.figure(figsize=[7,8.5*0.8])
+    fig.text(0.02,0.65,'A',fontsize=fs)
+    fig.text(0.48,0.65,'B',fontsize=fs)
+    fig.text(0.02,0.3,'C',fontsize=fs)
+    fig.text(0.48,0.3,'D',fontsize=fs)
+    ax = fig.add_subplot(323)
+    l = [31,43]
+    K = 6
+    mode = 's100'
+    num = 10
+    N = len(l)
+    R = l[0]
+    for j in range(N-1):
+        R = lcm(R,l[j+1])
+    u = act_mat_grid_binary(l)
+    u /= 2
+    if os.path.exists(datapath+'f8_s100_qp.txt'):
+        with open(datapath+'f8_s100_qp.txt','rb') as f:
+            margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = pickle.load(f)
+    else:
+        margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = margin_gridvsrandom(l,K=K,num=num,mode=mode,is_qp=is_qp)
+    margin = margin[:K]
+    rmargin = rmargin[:K]
+    smargin = smargin[:K]
+    numKarr = numKarr[:K]
+    rnumKarr = rnumKarr[:K]
+    snumKarr = snumKarr[:K]
+    # for violin plot: random
+    kmat1 = []
+    for k in range(K):
+        kmat1.extend([k+1]*np.sum(rnumKarr[k]))
+    mmat1 = [item for sublist in rmargin for subsublist in sublist for item in subsublist]
+    nmat1 = ['random']*np.sum(np.sum(rnumKarr))
+    # for violin plot: shuffle
+    kmat2 = []
+    for k in range(K):
+        kmat2.extend([k+1]*np.sum(snumKarr[k]))
+    mmat2 = [item for sublist in smargin for subsublist in sublist for item in subsublist]
+    nmat2 = ['shuffled']*np.sum(np.sum(snumKarr))
+    kmat1 = np.array(kmat1)
+    kmat2 = np.array(kmat2)
+    #sns.violinplot(np.append(kmat1,kmat2),np.append(mmat1,mmat2),np.append(nmat1,nmat2),inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100)
+    sns.violinplot(kmat1,mmat1,inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100,color='m')
+    sns.violinplot(kmat2,mmat2,inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100,color='b')
+    #sns.violinplot(kmat1,mmat1,nmat1,inner=None,linewidth=.4,bw=.2)
+    #sns.violinplot(kmat2,mmat2,nmat2,inner=None,linewidth=.4,bw=.2,color='#ff7f0e')
+    for k in range(1,K+1):
+        for mu in margin[k-1]:
+            pylab.plot(k-1+np.array([-0.3,0.3]),2*[mu],'k')
+    ax.set_yticks(np.arange(0,0.5,0.2))
+    ax.set_xlim(-0.5,K-0.5)
+    ax.set_ylim(0,0.4)
+    #ax.legend(loc=2,frameon=False)
+    ax.set_xlabel('number of fields ($K$)')
+    ax.set_ylabel('margin')
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    # B
+    ax = fig.add_subplot(324)
+    m_inset = []
+    for k in range(1,K+1):
+        count,temp = np.histogram(rng.rand(int(mode[1:])*num),np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)])/nCr(R,k))
+        for j in range(len(count)-1):
+            m_inset.extend([margin[k-1][j]]*count[j])
+        #print(np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)]),count,m_inset)
+    count0L = []
+    for m in mth:
+        count0L.append(np.sum(np.array(m_inset)>=m))
+    countr = []
+    for m in mth:
+        countr.append(np.sum(mmat1>=m))
+    counts = []
+    for m in mth:
+        counts.append(np.sum(mmat2>=m))
+    temp = float(K)*int(mode[1:])*num
+    ax.plot(mth,np.array(count0L)/temp,'k')
+    ax.plot(mth,np.array(countr)/temp,color='m',lw=1.5) #1f77b4
+    ax.plot(mth,np.array(counts)/temp,color='b',lw=1.5)    #ff7f0e
+    ax.plot([0,1],2*[1],'k--',lw=1)
+    ax.set_ylim(0,1)
+    ax.set_xlim(0,0.4)
+    ax.set_xlabel('margin $\kappa$')
+    ax.set_ylabel('CDF')
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    # CD
+    color = ['b','g','r','c','m']
+    #inp = [0,30,sum(l),100]  # first entry is zero
+    inp = [0,100]  # first entry is zero
+    numr = len(inp)
+    u = act_mat_grid_binary(l)
+    if 0:
+        for id in range(2):
+            margin_spatial = []
+            margin_new = []
+            for n in range(num):
+                for r in range(numr): # from no addition to numr additions
+                    if n == 0:
+                        margin_spatial.append([])
+                        if r > 0:
+                            margin_new.append([])
+                    if n > 0 and r == 0:
+                        continue
+                    if inp[r] > 0:
+                        if id == 0:
+                            # uniform
+                            randinp = 0.054*0.2*rng.rand(inp[r],u.shape[1])    #2*2/74 *0.2
+                        # gaussian
+                        #randinp = 0.1*rng.randn(inp[r],u.shape[1])
+                        elif id == 1:
+                            randinp = np.zeros((inp[r],u.shape[1]))
+                            for j in range(inp[r]):
+                                #randinp[j,rng.choice(range(u.shape[1]),10,replace=False)] = 1
+                                randinp[j,rng.choice(range(u.shape[1]),7,replace=False)] = 1    # 1333*2/74.*0.2
+                        v = np.append(u,randinp,axis=0)
+                else:
+                    v = np.copy(u)
+                    # Normalization
+                    for jj in range(u.shape[1]):
+                        # L1
+                        v[:,jj] = v[:,jj]/np.sum(v[:,jj])
+                # L2
+                #v[:,jj] = v[:,jj]/pylab.norm(v[:,jj])
+                for k in range(1,K+1):
+                    if n == 0:
+                        margin_spatial[r].append([])
+                        if r > 0:
+                            margin_new[r-1].append([])
+                        partition = partitions(k)
+                        part = []
+                        for p in partition:
+                            if np.all(np.array(p)<=np.min(l)):
+                                part.append(list(p))
+                                # Young diagram
+                                mat = np.zeros((l[0],l[1]))
+                                for j in range(len(p)):
+                                    mat[:p[j],j] = 1
+                                #pylab.figure()
+                                #pylab.imshow(mat,aspect='auto')
+                                i1 = np.tile(range(l[0]),l[1])
+                                i2 = np.tile(range(l[1]),l[0])
+                                Y = mat[i1,i2]
+                                print(Y)
+                                m,w,b = svm_margin(v.T,Y)
+                                margin_spatial[r][k-1].append(m)
+                                dec = np.sign(np.dot(w.T,v)+b)
+                                dec[dec<0] = 0
+                                print(k,p,r,abs(np.sum(np.abs(Y-dec))),m)
+                        is_fit = 0
+                        while r>0 and k>1 and not is_fit:     # unrealizable becomes realizable
+                            print(n,r,k)
+                            Y = np.zeros(u.shape[1])
+                            Y[0:k] = 1
+                            rng.shuffle(Y)
+                            m,w,b = svm_margin(u.T,Y)
+                            dec = np.sign(np.dot(w.T,u)+b)
+                            dec[dec<0] = 0
+                            if abs(np.sum(np.abs(Y-dec)))>1e-10: # not realizable
+                                print('found not realizable with u')
+                                m,w,b = svm_margin(v.T,Y)
+                                dec = np.sign(np.dot(w.T,v)+b)
+                                dec[dec<0] = 0
+                                if abs(np.sum(np.abs(Y-dec)))<1e-10:    # realizable
+                                    print('found realizable with v')
+                                    margin_new[r-1][k-1].append(m)
+                                    is_fit = 1
+    if 0:
+        with open(datapath+'fig4CD_'+str(id)+'.txt','wb') as f:
+            pickle.dump((margin_spatial,margin_new),f)
+        color = ['b','#0f9b8e','#0cfc73']
+        for id in range(2):
+            ax = pylab.subplot(3,2,5+id)
+            with open('fig4CD_'+str(id)+'.txt','r') as f:
+                margin_spatial,margin_new = pickle.load(f)
+            # violin
+            if 1:
+                mmat1 = [item for sublist in margin_spatial[numr-1][:K] for item in sublist]
+                mmat2 = [item for sublist in margin_new[numr-2][:K] for item in sublist]
+                kmat1 = []
+                kmat2 = []
+                for k in range(1,K+1):
+                    kmat1.extend([k]*len(margin_spatial[numr-1][k-1]))
+                    kmat2.extend([k]*len(margin_new[numr-2][k-1]))
+                nmat1 = ['exiting']*len(kmat1)
+                nmat2 = ['new']*len(kmat2)
+                #sns.violinplot(np.append(kmat1,kmat2),np.append(mmat1,mmat2),np.append(nmat1,nmat2),inner=None,linewidth=.4,bw=.2,gridsize=100)
+                sns.violinplot(kmat1,mmat1,inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100,color=color4[0])
+                sns.violinplot(np.append([1],kmat2),np.append([-1],mmat2),inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100,color='#ff7f0e')
+            for k in range(1,K+1):
+                for r in [0,numr-1]:#range(numr):
+                    if r > 0:
+                        # mean
+                        if 0:
+                            pn = len(margin_spatial[r][k-1])/num
+                            for j in range(pn):
+                                pylab.plot([k],[np.mean(margin_spatial[r][k-1][j::pn])],'.',ms=10,fillstyle='none',c=color[r-1],label=str(inp[r]))
+                            pylab.plot([k],[np.mean(margin_new[r-1][k-1])],'^',ms=6,fillstyle='none',c=color[r-1])
+                        # all trials
+                        if 0:
+                            pylab.plot([k]*len(margin_spatial[r][k-1]),margin_spatial[r][k-1],'x',c=color[r-1],label=str(inp[r])+' random input')
+                        else:
+                            for mu in margin_spatial[0][k-1]:
+                                pylab.plot(k-1+np.array([-0.3,0.3]),2*[mu],'k',label='grid')
+            pylab.xlim(-0.5,K-0.5)
+            pylab.ylim(0,0.45)
+            pylab.yticks([0,0.2,0.4])
+            if id == 0:
+                pylab.ylabel('margin')
+                pylab.xlabel('# fields ($K$)')
+                ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
+    fig.subplots_adjust(left=0.1,top=0.95,right=0.95,bottom=0.1,wspace=0.4,hspace=0.5)
+    fig.savefig(figpath+'s8'+'qp'*is_qp+'.svg')
+
+s8()
+#fig8_l23_addnoise()
+#fig8_l23_gaussprofile()
+
+#fig8_l23_inset()
+#extra_fig8()
+#morefig8b()
+#morefig8c()
+#morefig8d()
+
+#fig5_noncoprime()
+

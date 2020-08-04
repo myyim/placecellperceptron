@@ -2,15 +2,14 @@
 # See https://github.com/myyim/number_theory for more details
 
 import math
+import fractions
 
 def lcm(a,b):
     """ lcm(a,b) returns the LCM of a and b"""
-    import fractions
     return abs(a*b)/fractions.gcd(a,b) if a and b else 0
 
 def GCD(l):
     """ GCD(l) returns the GCD of entries in l"""
-    import fractions
     gcd = l[0]
     for j in range(1,len(l)):
         gcd = fractions.gcd(gcd,l[j])
@@ -19,7 +18,7 @@ def GCD(l):
 def nCr(n,r):
     """nCr(n,r) returns n choose r"""
     if n>=r:
-        return math.factorial(n)/math.factorial(r)/math.factorial(n-r)
+        return math.factorial(n)//math.factorial(r)//math.factorial(n-r)
     else:
         return 0
 

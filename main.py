@@ -668,16 +668,10 @@ def fig5():
 
 def fig8():
     is_qp = 0   # use quadratic programming with the options of constrained weights
-    #is_randphase = 1
-    #rate_rescaled = 1
     if is_qp:
         print 'Using quadratic programming'
     else:
         print 'Using sklearn SVM'
-    #if is_randphase:
-    #    print 'Phases in panel D are random'
-    #else:
-    #   print 'Phases in panel D are equally spaced'
     mpl.rcParams['legend.fontsize'] = font_size-6
     rng = np.random.RandomState(4)
     import seaborn as sns
@@ -701,8 +695,8 @@ def fig8():
     u = act_mat_grid_binary(l)
     u /= 2
     mode = 's1000'
-    if os.path.exists(datapath+'fig4As1000.txt'):
-        with open(datapath+'fig4As1000.txt','rb') as f:
+    if os.path.exists(datapath+'f8_s1000.txt'):
+        with open(datapath+'f8_s1000.txt','rb') as f:
             margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = pickle.load(f)
     else:
         margin,rmargin,smargin,numKarr,rnumKarr,snumKarr = margin_gridvsrandom(l,K=K,num=num,mode=mode)
@@ -712,35 +706,6 @@ def fig8():
     numKarr = numKarr[:K]
     rnumKarr = rnumKarr[:K]
     snumKarr = snumKarr[:K]
-    print margin[0]
-    temp = []
-    for j in range(K):
-        temp.extend(rmargin[j][0])
-    temp = np.array(temp)
-    countr1L = []
-    for m in mth:
-        countr1L.append(np.sum(temp>=m))
-    temp = []
-    for j in range(K):
-        temp.extend(rmargin[j][1])
-    temp = np.array(temp)
-    countr2L = []
-    for m in mth:
-        countr2L.append(np.sum(temp>=m))
-    temp = []
-    for j in range(K):
-        temp.extend(smargin[j][0])
-    temp = np.array(temp)
-    counts1L = []
-    for m in mth:
-        counts1L.append(np.sum(temp>=m))
-    temp = []
-    for j in range(K):
-        temp.extend(smargin[j][1])
-    temp = np.array(temp)
-    counts2L = []
-    for m in mth:
-        counts2L.append(np.sum(temp>=m))
     # for violin plot: random
     kmat1 = []
     for k in range(K):
@@ -766,29 +731,31 @@ def fig8():
     ax.set_yticks(np.arange(0,0.5,0.2))
     ax.set_xlim(-0.5,K-0.5)
     ax.set_ylim(0,0.4)
-    #ax.legend(loc=2,frameon=False)
     ax.set_xlabel('number of fields ($K$)')
-    ax.set_ylabel('realizable fraction')
+    ax.set_ylabel('margin')
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     # B
     ax = fig.add_subplot(324)
-    l = [31,43]
-    R = l[0]*l[1]
-    K = 6
     m_inset = []
     for k in range(1,K+1):
-        count,temp = np.histogram(rng.rand(int(mode[1:])),np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)])/nCr(R,k))
+        count,temp = np.histogram(rng.rand(int(mode[1:])*num),np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)])/nCr(R,k)) # randomly draw field arrangements based on fractions of margins
         for j in range(len(count)-1):
             m_inset.extend([margin[k-1][j]]*count[j])
         print np.array([0.]+list(np.cumsum(numKarr[k-1]))+[nCr(R,k)]),count,m_inset
     count0L = []
     for m in mth:
         count0L.append(np.sum(np.array(m_inset)>=m))
-    temp = float(K)*int(mode[1:])
+    countr = []
+    for m in mth:
+        countr.append(np.sum(mmat1>=m))
+    counts = []
+    for m in mth:
+        counts.append(np.sum(mmat2>=m))
+    temp = float(K)*int(mode[1:])*num
     ax.plot(mth,np.array(count0L)/temp,'k')
-    ax.plot(mth,np.array(countr1L)/temp,color='m',lw=1.5) #1f77b4
-    ax.plot(mth,np.array(counts1L)/temp,color='b',lw=1.5)    #ff7f0e
+    ax.plot(mth,np.array(countr)/temp,color='m',lw=1.5) #1f77b4
+    ax.plot(mth,np.array(counts)/temp,color='b',lw=1.5)    #ff7f0e
     ax.plot([0,1],2*[1],'k--',lw=1)
     ax.set_ylim(0,1)
     ax.set_xlim(0,0.4)
@@ -798,14 +765,10 @@ def fig8():
     ax.spines['top'].set_visible(False)
     # CD
     color = ['b','g','r','c','m']
-    l = [31,43] #[2,3]
-    K = 6
-    #inp = [0,30,sum(l),100]  # first entry is zero
     inp = [0,100]  # first entry is zero
-    num = 1000
     numr = len(inp)
     u = act_mat_grid_binary(l)
-    if 0:
+    if 1:
         for id in range(2):
             margin_spatial = []
             margin_new = []
@@ -880,12 +843,12 @@ def fig8():
                                     print 'found realizable with v'
                                     margin_new[r-1][k-1].append(m)
                                     is_fit = 1
-            with open(datapath+'fig4CD_'+str(id)+'.txt','wb') as f:
+            with open(datapath+'fig8CD_'+str(id)+'.txt','wb') as f:
                 pickle.dump((margin_spatial,margin_new),f)
     color = ['b','#0f9b8e','#0cfc73']
     for id in range(2):
         ax = pylab.subplot(3,2,5+id)
-        with open('fig4CD_'+str(id)+'.txt','r') as f:
+        with open(datapath+'fig8CD_'+str(id)+'.txt','r') as f:
             margin_spatial,margin_new = pickle.load(f)
         # violin
         if 1:
@@ -898,7 +861,6 @@ def fig8():
                 kmat2.extend([k]*len(margin_new[numr-2][k-1]))
             nmat1 = ['exiting']*len(kmat1)
             nmat2 = ['new']*len(kmat2)
-            #sns.violinplot(np.append(kmat1,kmat2),np.append(mmat1,mmat2),np.append(nmat1,nmat2),inner=None,linewidth=.4,bw=.2,gridsize=100)
             sns.violinplot(kmat1,mmat1,inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100,color=color4[0])
             sns.violinplot(np.append([1],kmat2),np.append([-1],mmat2),inner=None,linewidth=.4,scale='width',width=0.5,bw=.2,gridsize=100,color='#ff7f0e')
         for k in range(1,K+1):
@@ -1158,13 +1120,13 @@ def readfig7():
     pylab.subplots_adjust(left=0.1,right=0.9,wspace=0.4,hspace=0.4,bottom=0.2)
     pylab.savefig(figpath+'fig7.svg')
 
-fig1_2()
-fig3()
-fig5()
-fig5()
-fig6()
-fig6b()
+#fig1_2()
+#fig3()
+#fig5()
+#fig5()
+#fig6()
+#fig6b()
 fig8()
-for j in range(1,11):
-    fig7(j)
-readfig7()
+#for j in range(1,11):
+#    fig7(j)
+#readfig7()
