@@ -4,5 +4,11 @@ The codes were written for the following preprint: Yim MY, Sadun LA, Fiete IR, T
 # Python
 The Python codes simulate the models, analyze the data and generate the figures.
 
+main.py
+Generate main figures
+
+suppinfo.py
+Gererate supplementary figures
+
 # License
 This project is licensed under the MIT License.
