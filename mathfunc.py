@@ -2,17 +2,16 @@
 # See https://github.com/myyim/number_theory for more details
 
 import math
-import fractions
 
 def lcm(a,b):
     """ lcm(a,b) returns the LCM of a and b"""
-    return abs(a*b)/fractions.gcd(a,b) if a and b else 0
+    return abs(a*b)/math.gcd(a,b) if a and b else 0
 
 def GCD(l):
     """ GCD(l) returns the GCD of entries in l"""
     gcd = l[0]
     for j in range(1,len(l)):
-        gcd = fractions.gcd(gcd,l[j])
+        gcd = math.gcd(gcd,l[j])
     return gcd
 
 def nCr(n,r):
